@@ -45,6 +45,19 @@
         android:text="Pilih titik lokasi anda!"
         android:textSize="9pt"/>
 
+    <TextView
+        android:id="@+id/textView_location"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="TESTING LOKASI"
+        android:textSize="9pt"/>
+
+    <Button
+        android:id="@+id/btn_location"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="LOCATION"/>
+
     <Button
         android:id="@+id/btn_order"
         android:layout_width="match_parent"
