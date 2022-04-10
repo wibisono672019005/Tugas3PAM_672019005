@@ -1,14 +1,14 @@
 package com.example.pam_googlemapsfirebase.model;
 
 public class Pesanan {
-    private String id, tujuan, titikawal, name;
+    private String orderId, tujuan, titikawal, name;
 
     public Pesanan() {
 
     }
 
-    public Pesanan(String id, String tujuan, String titikawal, String name) {
-        this.id = id;
+    public Pesanan(String orderId, String tujuan, String titikawal, String name) {
+        this.orderId = orderId;
         this.tujuan = tujuan;
         this.titikawal = titikawal;
         this.name = name;
@@ -22,12 +22,12 @@ public class Pesanan {
         this.name = name;
     }
 
-    public String getId() {
-        return id;
+    public String getOrderId() {
+        return orderId;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setOrderId(String orderId) {
+        this.orderId = orderId;
     }
 
     public String getTujuan() {

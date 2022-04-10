@@ -42,6 +42,7 @@ public class PesananAdapter extends RecyclerView.Adapter<PesananAdapter.MyViewHo
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
+        holder.namapesanan.setText(list.get(position).getName());
         holder.alamatawal.setText(list.get(position).getTitikawal());
         holder.alamattujuan.setText(list.get(position).getTujuan());
     }
@@ -52,10 +53,11 @@ public class PesananAdapter extends RecyclerView.Adapter<PesananAdapter.MyViewHo
     }
 
     class MyViewHolder extends RecyclerView.ViewHolder {
-        TextView alamatawal, alamattujuan;
+        TextView namapesanan, alamatawal, alamattujuan;
 
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
+            namapesanan = itemView.findViewById(R.id.namapesanan);
             alamatawal = itemView.findViewById(R.id.alamatawal);
             alamattujuan = itemView.findViewById(R.id.alamattujuan);
             itemView.setOnClickListener(new View.OnClickListener() {

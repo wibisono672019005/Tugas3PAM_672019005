@@ -19,14 +19,16 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Order Id"
-            android:textSize="12pt"/>
+            android:text="Id Pesanan"
+            android:textSize="8pt"/>
 
         <Button
             android:id="@+id/btn_editOrder"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="3"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/warnaUtama"
             android:text="Ubah"/>
 
     </LinearLayout>
@@ -36,7 +38,45 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="text"
-        android:hint="Nama"/>
+        android:hint="Masukkan Nama Anda..."/>
+
+    <TextView
+        android:id="@+id/txt_lokasiAnda"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Lokasi Anda Saat ini :"
+        android:textSize="7pt"/>
+
+    <TextView
+        android:id="@+id/textView_location"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Lokasi Terkini"
+        android:textSize="9pt"/>
+
+    <TextView
+        android:id="@+id/lokasiTerkiniLat"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Latitude Terkini"
+        android:visibility="gone"
+        android:textSize="9pt"/>
+
+    <TextView
+        android:id="@+id/lokasiTerkiniLng"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Latitude Terkini"
+        android:visibility="gone"
+        android:textSize="9pt"/>
+
+    <TextView
+        android:id="@+id/txt_lokasiTujuan"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="Pilih Tujuan Pesanan :"
+        android:textSize="7pt"/>
 
     <TextView
         android:id="@+id/txt_selectedPlace"
@@ -45,32 +85,13 @@
         android:text="Pilih titik lokasi anda!"
         android:textSize="9pt"/>
 
-    <TextView
-        android:id="@+id/textView_location"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="TESTING LOKASI"
-        android:textSize="9pt"/>
-
-    <TextView
-        android:id="@+id/textDua"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Latitude"
-        android:textSize="9pt"/>
-
-
-    <Button
-        android:id="@+id/btn_location"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="LOCATION"/>
-
     <Button
         android:id="@+id/btn_order"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Order"/>
+        android:textColor="@color/white"
+        android:backgroundTint="@color/warnaUtama"
+        android:text="Pesan"/>
 
     <fragment
         android:id="@+id/map"

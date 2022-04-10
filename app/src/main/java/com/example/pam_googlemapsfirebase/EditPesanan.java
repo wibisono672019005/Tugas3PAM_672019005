@@ -8,14 +8,12 @@ import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.text.Html;
 import android.widget.Button;
@@ -23,7 +21,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.pam_googlemapsfirebase.adapter.PesananAdapter;
 import com.example.pam_googlemapsfirebase.model.Pesanan;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -49,12 +46,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public class EditPesanan extends AppCompatActivity implements LocationListener, GoogleApiClient.ConnectionCallbacks, OnMapReadyCallback, GoogleMap.OnMapClickListener {
+public class EditPesanan extends AppCompatActivity implements LocationListener, OnMapReadyCallback, GoogleMap.OnMapClickListener {
 
     //Variabel
     private GoogleMap gMap;
     private Marker selectedMarker;
-    private LatLng selectedPlace;
+    private LatLng selectedPlace, LokTer;
 
     private FirebaseFirestore db;
 
@@ -64,15 +61,10 @@ public class EditPesanan extends AppCompatActivity implements LocationListener, 
 
     private boolean isNewOrder = true;
 
-    //BARU
-    LocationManager locationManager;
-    Button button_location;
-    TextView textView_location, textDua;
+    TextView textView_location, lokasiTerkiniLat, lokasiTerkiniLng;
     FusedLocationProviderClient fusedLocationProviderClient;
     private List<Pesanan> list = new ArrayList<>();
-    private PesananAdapter pesananAdapter;
-    private ProgressDialog progressDialog;
-    private String id = "";
+    private String orderId = "";
 
 
 
@@ -87,8 +79,8 @@ public class EditPesanan extends AppCompatActivity implements LocationListener, 
         btnEditOrder = findViewById(R.id.btn_editOrder);
         btnOrder = findViewById(R.id.btn_order);
         textView_location = findViewById(R.id.textView_location);
-        button_location = findViewById(R.id.btn_location);
-        textDua = findViewById(R.id.textDua);
+        lokasiTerkiniLat = findViewById(R.id.lokasiTerkiniLat);
+        lokasiTerkiniLng = findViewById(R.id.lokasiTerkiniLat);
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
@@ -123,13 +115,14 @@ public class EditPesanan extends AppCompatActivity implements LocationListener, 
 
         Intent intent = getIntent();
         if (intent != null) {
-            id = intent.getStringExtra("id");
-            txtOrderId.setText(intent.getStringExtra("id"));
-            txtSelectedPlace.setText(intent.getStringExtra("1address"));
+            orderId = intent.getStringExtra("orderId");
+            txtOrderId.setText(intent.getStringExtra("orderId"));
+            txtSelectedPlace.setText(intent.getStringExtra("tujuanAlamat"));
             editTextName.setText(intent.getStringExtra("name"));
         }
     }
 
+    //Mendapatkan Lokasi Terkini
     @SuppressLint("MissingPermission")
     private void getLocation() {
         fusedLocationProviderClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
@@ -145,12 +138,10 @@ public class EditPesanan extends AppCompatActivity implements LocationListener, 
                         List<Address> addresses = geocoder.getFromLocation(
                                 location.getLatitude(), location.getLongitude(), 1
                         );
-                        //Set Latitude on TextView
-                        textDua.setText(Html.fromHtml("<font></font>" + addresses.get(0).getLatitude()));
+                        //Set Lokasi on TextView
+                        lokasiTerkiniLat.setText(Html.fromHtml("<font></font>" + addresses.get(0).getLatitude()));
+                        lokasiTerkiniLng.setText(Html.fromHtml("<font></font>" + addresses.get(0).getLongitude()));
                         textView_location.setText(addresses.get(0).getAddressLine(0));
-
-
-
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -209,25 +200,26 @@ public class EditPesanan extends AppCompatActivity implements LocationListener, 
 
         String name = editTextName.getText().toString();
 
-        order.put("1address", txtSelectedPlace.getText().toString());
-        order.put("1lat", selectedPlace.latitude);
-        order.put("1lng", selectedPlace.longitude);
-
-        order.put("2address", textView_location.getText().toString());
-        order.put("2lat", textDua.getText().toString());
-
         order.put("name", name);
         order.put("createdDate", new Date());
 
-        String id = txtOrderId.getText().toString();
+        order.put("tujuanAlamat", txtSelectedPlace.getText().toString());
+        order.put("tujuanLat", selectedPlace.latitude);
+        order.put("tujuanLng", selectedPlace.longitude);
 
-        if (id != null) {
-            db.collection("orders").document(id)
+        order.put("terkiniAlamat", textView_location.getText().toString());
+        order.put("terkiniLat", lokasiTerkiniLat.getText().toString());
+        order.put("terkiniLng", lokasiTerkiniLng.getText().toString());
+
+        String orderId = txtOrderId.getText().toString();
+
+        if (orderId != null) {
+            db.collection("orders").document(orderId)
                     .set(order)
                     .addOnSuccessListener(unused -> {
                         editTextName.setText("");
                         txtSelectedPlace.setText("");
-                        txtOrderId.setText(id);
+                        txtOrderId.setText(orderId);
 
                         isNewOrder = true;
                     })
@@ -240,9 +232,9 @@ public class EditPesanan extends AppCompatActivity implements LocationListener, 
     private void updateOrder() {
         isNewOrder = false;
 
-        String id = txtOrderId.getText().toString();
+        String orderId = txtOrderId.getText().toString();
 
-        DocumentReference order = db.collection("orders").document(id);
+        DocumentReference order = db.collection("orders").document(orderId);
         order.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 DocumentSnapshot document = task.getResult();
@@ -250,9 +242,9 @@ public class EditPesanan extends AppCompatActivity implements LocationListener, 
                     String name = document.get("name").toString();
 
                     editTextName.setText(name);
-                    txtSelectedPlace.setText(document.get("1address").toString());
+                    txtSelectedPlace.setText(document.get("tujuanAlamat").toString());
 
-                    LatLng resultPlace = new LatLng((double) document.get("1lat"), (double) document.get("1lng"));
+                    LatLng resultPlace = new LatLng((double) document.get("tujuanLat"), (double) document.get("tujuanLng"));
                     selectedPlace = resultPlace;
                     selectedMarker.setPosition(selectedPlace);
                     gMap.animateCamera(CameraUpdateFactory.newLatLng(selectedPlace));
@@ -298,14 +290,5 @@ public class EditPesanan extends AppCompatActivity implements LocationListener, 
         LocationListener.super.onProviderDisabled(provider);
     }
 
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-
-    }
 
 }

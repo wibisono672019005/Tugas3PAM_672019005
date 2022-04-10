@@ -15,7 +15,6 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -42,9 +41,7 @@ public class MainActivity extends AppCompatActivity {
 
     private FirebaseFirestore db;
 
-    //BARU
-    LocationManager locationManager;
-    TextView textView_location, textDua;
+    TextView textView_location;
     FusedLocationProviderClient fusedLocationProviderClient;
     private List<Pesanan> list = new ArrayList<>();
     private PesananAdapter pesananAdapter;
@@ -56,33 +53,35 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         textView_location = findViewById(R.id.textView_location);
-        textDua = findViewById(R.id.textDua);
 
         recyclerView = findViewById(R.id.recyclerView);
         btnAddOrder = findViewById(R.id.btn_addOrder);
 
         progressDialog = new ProgressDialog(MainActivity.this);
         progressDialog.setTitle("Loading");
-        progressDialog.setMessage("Mengambil Data.");
+        progressDialog.setMessage("Mengambil Data...");
         pesananAdapter = new PesananAdapter(getApplicationContext(), list);
         pesananAdapter.setDialog(new PesananAdapter.Dialog() {
             @Override
             public void onClick(int pos) {
-                final CharSequence[] dialogItem ={"Edit", "Hapus"};
+                final CharSequence[] dialogItem =
+                        {"Pesanan " + list.get(pos).getName().toString(), "Edit", "Hapus"};
                 AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
                 dialog.setItems(dialogItem, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         switch (i) {
                             case 0:
+                                break;
+                            case 1:
                                 Intent intent = new Intent(getApplicationContext(), EditPesanan.class);
-                                intent.putExtra("id", list.get(pos).getId());
-                                intent.putExtra("1address", list.get(pos).getTujuan());
+                                intent.putExtra("orderId", list.get(pos).getOrderId());
+                                intent.putExtra("tujuanAlamat", list.get(pos).getTujuan());
                                 intent.putExtra("name", list.get(pos).getName());
                                 startActivity(intent);
                                 break;
-                            case 1:
-                                deleteData(list.get(pos).getId());
+                            case 2:
+                                deleteData(list.get(pos).getOrderId());
                                 break;
                         }
                     }
@@ -91,8 +90,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false);
-        RecyclerView.ItemDecoration decoration = new DividerItemDecoration(getApplicationContext(), DividerItemDecoration.VERTICAL);
+        //Pembuatan List Riwayat Pemesanan
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext(),
+                LinearLayoutManager.VERTICAL, false);
+        RecyclerView.ItemDecoration decoration = new DividerItemDecoration(getApplicationContext(),
+                DividerItemDecoration.VERTICAL);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.addItemDecoration(decoration);
         recyclerView.setAdapter(pesananAdapter);
@@ -132,8 +134,13 @@ public class MainActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             list.clear();
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                Pesanan pesanan = new Pesanan(document.getString("orderId"), document.getString("1address"), document.getString("2address"), document.getString("name"));
-                                pesanan.setId(document.getId());
+                                Pesanan pesanan = new Pesanan(
+                                        document.getString("orderId"),
+                                        document.getString("tujuanAlamat"),
+                                        document.getString("terkiniAlamat"),
+                                        document.getString("name")
+                                );
+                                pesanan.setOrderId(document.getId());
                                 list.add(pesanan);
                             }
                             pesananAdapter.notifyDataSetChanged();
@@ -145,9 +152,9 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
-    private void deleteData(String id) {
+    private void deleteData(String orderId) {
         progressDialog.show();
-        db.collection("orders").document(id)
+        db.collection("orders").document(orderId)
                 .delete()
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
