@@ -49,7 +49,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public class OrderPesanan extends AppCompatActivity implements LocationListener, GoogleApiClient.ConnectionCallbacks, OnMapReadyCallback, GoogleMap.OnMapClickListener {
+public class EditPesanan extends AppCompatActivity implements LocationListener, GoogleApiClient.ConnectionCallbacks, OnMapReadyCallback, GoogleMap.OnMapClickListener {
 
     //Variabel
     private GoogleMap gMap;
@@ -79,7 +79,7 @@ public class OrderPesanan extends AppCompatActivity implements LocationListener,
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_order_pesanan);
+        setContentView(R.layout.activity_edit_pesanan);
 
         txtOrderId = findViewById(R.id.txt_orderId);
         txtSelectedPlace = findViewById(R.id.txt_selectedPlace);
@@ -87,6 +87,7 @@ public class OrderPesanan extends AppCompatActivity implements LocationListener,
         btnEditOrder = findViewById(R.id.btn_editOrder);
         btnOrder = findViewById(R.id.btn_order);
         textView_location = findViewById(R.id.textView_location);
+        button_location = findViewById(R.id.btn_location);
         textDua = findViewById(R.id.textDua);
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
@@ -98,21 +99,21 @@ public class OrderPesanan extends AppCompatActivity implements LocationListener,
         mapFragment.getMapAsync(this);
 
         //Runtime Permissions for get access for location
-        if(ContextCompat.checkSelfPermission(OrderPesanan.this, Manifest.permission.ACCESS_FINE_LOCATION)
+        if(ContextCompat.checkSelfPermission(EditPesanan.this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(OrderPesanan.this, new String[] {
+            ActivityCompat.requestPermissions(EditPesanan.this, new String[] {
                     Manifest.permission.ACCESS_FINE_LOCATION
             }, 100);
         }
 
         //Check Permission
-        if (ActivityCompat.checkSelfPermission(OrderPesanan.this,
+        if (ActivityCompat.checkSelfPermission(EditPesanan.this,
                 Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             //Ketika Permission Granted
             getLocation();
         } else {
             //Ketika Permission Denied
-            ActivityCompat.requestPermissions(OrderPesanan.this,
+            ActivityCompat.requestPermissions(EditPesanan.this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 44);
         }
 
@@ -123,12 +124,7 @@ public class OrderPesanan extends AppCompatActivity implements LocationListener,
         Intent intent = getIntent();
         if (intent != null) {
             id = intent.getStringExtra("id");
-            if (id == null) {
-                txtOrderId.getText();
-            } else {
-                txtOrderId.setText(intent.getStringExtra("id"));
-            }
-
+            txtOrderId.setText(intent.getStringExtra("id"));
             txtSelectedPlace.setText(intent.getStringExtra("1address"));
             editTextName.setText(intent.getStringExtra("name"));
         }
@@ -144,13 +140,13 @@ public class OrderPesanan extends AppCompatActivity implements LocationListener,
                 if (location != null) {
                     try {
                         //Initialize geoCoder
-                        Geocoder geocoder = new Geocoder(OrderPesanan.this, Locale.getDefault());
+                        Geocoder geocoder = new Geocoder(EditPesanan.this, Locale.getDefault());
                         //Initialize Address list
                         List<Address> addresses = geocoder.getFromLocation(
                                 location.getLatitude(), location.getLongitude(), 1
                         );
                         //Set Latitude on TextView
-                        textDua.setText(Html.fromHtml("<font>SSDSSS</font>" + addresses.get(0).getLatitude()));
+                        textDua.setText(Html.fromHtml("<font></font>" + addresses.get(0).getLatitude()));
                         textView_location.setText(addresses.get(0).getAddressLine(0));
 
 
@@ -225,19 +221,7 @@ public class OrderPesanan extends AppCompatActivity implements LocationListener,
 
         String id = txtOrderId.getText().toString();
 
-        if (isNewOrder) {
-            db.collection("orders")
-                    .add(order)
-                    .addOnSuccessListener(documentReference -> {
-                        editTextName.setText("");
-                        txtSelectedPlace.setText("Pilih tempat");
-                        txtOrderId.setText(documentReference.getId());
-                    })
-                    .addOnFailureListener(e -> {
-                        Toast.makeText(this, "Gagal tambah data order", Toast.LENGTH_SHORT).show();
-                    });
-        }
-        else {
+        if (id != null) {
             db.collection("orders").document(id)
                     .set(order)
                     .addOnSuccessListener(unused -> {
@@ -288,7 +272,7 @@ public class OrderPesanan extends AppCompatActivity implements LocationListener,
     public void onLocationChanged(@NonNull Location location) {
         Toast.makeText(this, "" + location.getLatitude() + "," + location.getLongitude(), Toast.LENGTH_SHORT).show();
         try {
-            Geocoder geocoder = new Geocoder(OrderPesanan.this, Locale.getDefault());
+            Geocoder geocoder = new Geocoder(EditPesanan.this, Locale.getDefault());
             List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
             String address = addresses.get(0).getAddressLine(0);
 
